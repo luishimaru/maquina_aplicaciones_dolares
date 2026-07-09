@@ -206,6 +206,10 @@ section.block{padding:74px 0;scroll-margin-top:84px}
   body{background:#fff}
   .nav,.scrollcue,.btn-print,.copybtn,.codebar .copybtn,.perfil__bar,.hero canvas{display:none!important}
   #valor,#meta,#perfil,#escaner,#simulador,#tablero{display:none!important}
+  /* El PDF de "prompts y plantillas" no debe llevar formularios ni controles vacíos */
+  #portafolio .pmv-form,#portafolio .pmv-outbar,#portafolio .pmv-render:empty,
+  #frescas input,#frescas select,#alertas input,#contrato input,#contrato textarea,
+  #cobro .selector,#cobro .seg{display:none!important}
   .prompt,.flow__item,.board{break-inside:avoid;page-break-inside:avoid}
   pre.code{white-space:pre-wrap;word-break:break-word}
   .hero{padding:30px 0;color:#06270f;background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
@@ -422,6 +426,19 @@ table.trk input::placeholder{color:#aab4a6}
   #portafolio .pmv-srow{grid-template-columns:1fr}
 }
 @media print{#portafolio .pmv-filters,#portafolio .pmv-copybtn,#portafolio .pmv-btn-gold,#portafolio .pmv-btn-ghost{display:none!important}}
+
+/* ===== Impresión aislada: solo el bloque generado (portafolio) ===== */
+#dgg-print-area{display:none}
+@media print{
+  body.dgg-printing > *{display:none!important}
+  body.dgg-printing #dgg-print-area{display:block!important;padding:0;margin:0}
+  body.dgg-printing #dgg-print-area .dgg-pa-head{margin:0 0 18px;padding-bottom:12px;border-bottom:2px solid #c9a227}
+  body.dgg-printing #dgg-print-area .dgg-pa-head h1{font:600 22px/1.2 'Fraunces',Georgia,serif;color:#0a4a1e;margin:0 0 4px}
+  body.dgg-printing #dgg-print-area .dgg-pa-head span{font:400 11px/1 'Poppins',sans-serif;color:#5c6b5e;letter-spacing:.06em;text-transform:uppercase}
+  body.dgg-printing #dgg-print-area .dgg-pa-body{white-space:pre-wrap;font:14px/1.65 'Poppins',sans-serif;color:#1c241b}
+  body.dgg-printing #dgg-print-area .dgg-pa-body .pmv-nm{font-family:'Fraunces',Georgia,serif;font-size:20px;color:#0a4a1e;font-weight:600}
+  body.dgg-printing #dgg-print-area .dgg-pa-foot{margin-top:20px;padding-top:10px;border-top:1px solid #e2e6d8;font:400 10px/1.4 'Poppins',sans-serif;color:#5c6b5e}
+}
 </style>
 </head>
 <body>
@@ -797,7 +814,7 @@ table.trk input::placeholder{color:#aab4a6}
     <div class="perfil reveal">
       <h3>Rellénalo una vez y guárdalo</h3>
       <p class="lead">Cuanto más concreto y con números, mejores resultados. Como decimos por aquí: <em>la riqueza se construye de grano en grano — y tu carrera también.</em></p>
-      <textarea id="perfil" spellcheck="false">=== MI PERFIL BASE ===
+      <textarea id="perfilTxt" spellcheck="false">=== MI PERFIL BASE ===
 Nombre:
 País / ciudad:
 Titular profesional actual (ej: Diseñador, Atención al cliente, Dev junior):
@@ -965,7 +982,7 @@ Reglas:
       <div class="pmv-render" id="pmv-pout-render"></div>
       <div class="pmv-outbar">
         <button class="pmv-copybtn" data-target="pmv-pout-render">Copiar texto</button>
-        <button class="pmv-btn-ghost" onclick="window.print()">Guardar como PDF</button>
+        <button class="pmv-btn-ghost" onclick="dggPrintPortafolio()">Guardar como PDF</button>
       </div>
     </div>
   </div>
@@ -2695,8 +2712,8 @@ document.querySelectorAll('.copybtn').forEach(b=>b.addEventListener('click',()=>
 }));
 
 // ---- perfil base persist ----
-const ta=document.getElementById('perfil'), TPL=ta.value, msg=document.getElementById('saveMsg');
-try{const s=localStorage.getItem('dgeg_perfil'); if(s)ta.value=s;}catch(e){}
+const ta=document.getElementById('perfilTxt'), TPL=ta?ta.value:'', msg=document.getElementById('saveMsg');
+try{const s=localStorage.getItem('dgeg_perfil'); if(s && s!=='undefined' && s.trim())ta.value=s; else if(s==='undefined')localStorage.removeItem('dgeg_perfil');}catch(e){}
 ta.addEventListener('input',()=>{try{localStorage.setItem('dgeg_perfil',ta.value);}catch(e){} msg.textContent='Guardado ✓';});
 document.getElementById('copyPerfil').addEventListener('click',()=>{navigator.clipboard.writeText(ta.value);msg.textContent='Perfil copiado ✓';});
 document.getElementById('resetPerfil').addEventListener('click',()=>{ta.value=TPL;try{localStorage.setItem('dgeg_perfil',TPL);}catch(e){}msg.textContent='Plantilla restaurada';});
@@ -3264,6 +3281,48 @@ upd();
 
   function val(id){return ($(id).value||'').trim();}
   function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  /* ---- Guardar SOLO el portafolio generado como PDF ---- */
+  window.dggPrintPortafolio = function(){
+    var src = document.getElementById('pmv-pout-render');
+    if(!src || !src.textContent.trim()){
+      alert('Primero pulsa "Generar mi portafolio". Luego podrás guardarlo en PDF.');
+      return;
+    }
+    var area = document.getElementById('dgg-print-area');
+    if(!area){
+      area = document.createElement('div');
+      area.id = 'dgg-print-area';
+      document.body.appendChild(area);
+    }
+    var nombre = (document.getElementById('pmv-f-name') && document.getElementById('pmv-f-name').value.trim()) || 'Mi portafolio';
+    var head = document.createElement('div'); head.className='dgg-pa-head';
+    var h1 = document.createElement('h1'); h1.textContent = nombre;
+    var sub = document.createElement('span'); sub.textContent = 'Portafolio profesional';
+    head.appendChild(h1); head.appendChild(sub);
+
+    var body = document.createElement('div'); body.className='dgg-pa-body';
+    body.innerHTML = src.innerHTML;
+
+    var foot = document.createElement('div'); foot.className='dgg-pa-foot';
+    foot.textContent = 'Generado con La Máquina de Aplicaciones en Dólares · De Grano En Grano';
+
+    area.innerHTML = '';
+    area.appendChild(head); area.appendChild(body); area.appendChild(foot);
+
+    var titulo = document.title;
+    document.title = nombre.replace(/\s+/g,'_') + '_Portafolio';
+    document.body.classList.add('dgg-printing');
+
+    var limpiar = function(){
+      document.body.classList.remove('dgg-printing');
+      document.title = titulo;
+      window.removeEventListener('afterprint', limpiar);
+    };
+    window.addEventListener('afterprint', limpiar);
+    window.print();
+    setTimeout(limpiar, 1500); /* respaldo si el navegador no dispara afterprint */
+  };
 
   $('pmv-build-portfolio').addEventListener('click',function(){
     var name=val('pmv-f-name')||'Tu nombre';
