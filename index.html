@@ -442,6 +442,10 @@ table.trk input::placeholder{color:#aab4a6}
 </style>
 </head>
 <body>
+<div style="background:#1e150c;border-bottom:3px solid #c2912e;color:#fbf5e7;font-family:'Poppins',system-ui,-apple-system,sans-serif;padding:11px 18px;text-align:center;font-size:13px;line-height:1.55">
+  <strong style="color:#e6b84a;letter-spacing:.05em">&#9888; MATERIAL CONFIDENCIAL &middot; PROGRAMA GRANO DE ORO</strong><br>
+  Todo este material es <strong>confidencial</strong>. Queda prohibido <strong>compartirlo, distribuirlo o utilizarlo</strong> por personas ajenas no inscritas en el programa <strong>Grano de Oro</strong>. Uso exclusivamente personal.
+</div>
 
 <nav class="nav">
   <div class="nav__in">
@@ -507,7 +511,7 @@ table.trk input::placeholder{color:#aab4a6}
     <div class="sec-head reveal">
       <span class="kicker kicker--gold">El valor real</span>
       <h2>Por qué este bonus vale por sí solo</h2>
-      <p class="lead" style="max-width:660px;margin:14px auto 0;color:var(--mute);font-size:16px">Por separado, estas herramientas costarían más de <b style="color:var(--gold-d)">$3,000 USD</b>. Aquí van <b>incluidas, gratis</b>, dentro del programa.</p>
+      <p class="lead" style="max-width:660px;margin:14px auto 0;color:var(--mute);font-size:16px">Por separado, estas herramientas costarían más de <b style="color:var(--gold-d)">$3,000 USD</b>. Aquí van <b>incluidas</b>, dentro del programa.</p>
     </div>
     <div class="vgrid">
       <div class="vcard reveal"><div class="vnum">01</div><h4>Sustituye a un coach de empleabilidad</h4><p>Lo que un experto cobraría por optimizar tu CV y tu estrategia, aquí lo tienes sistematizado y a tu disposición.</p></div>
@@ -516,7 +520,7 @@ table.trk input::placeholder{color:#aab4a6}
       <div class="vcard reveal"><div class="vnum">04</div><h4>Te abre el pago en USD/EUR</h4><p>La base sobre la que se construye todo lo demás que aprendes aquí dentro: ingresos en divisa fuerte.</p></div>
     </div>
     <div class="stack reveal">
-      <div class="stack__ribbon">Incluido gratis en tu acceso</div>
+      <div class="stack__ribbon">Incluido en tu acceso</div>
       <h3 class="stack__title">Lo que tendrías que pagar por separado</h3>
       <ul class="stack__list">
         <li><span>Buscador de puestos remotos a tu medida</span><b>$227</b></li>
@@ -533,7 +537,7 @@ table.trk input::placeholder{color:#aab4a6}
       <li><span>Directorio de portales de empleo remoto LATAM</span><b>$90</b></li>
       </ul>
       <div class="stack__total"><span>Valor real (USD)</span><div><s>$3,112</s><b>Incluido</b></div></div>
-      <p class="stack__foot">Un servicio puntual de redacción de CV cuesta $90–140 USD y una sesión con un coach de entrevistas, $60–115 USD. Aquí lo tienes <b>ilimitado y para siempre</b>.</p>
+      <p class="stack__foot">Un servicio puntual de redacción de CV cuesta $90–140 USD y una sesión con un coach de entrevistas, $60–115 USD. Aquí lo tienes <b>ilimitado por todo el tiempo que estés en el programa</b>.</p>
     </div>
   </div>
 </section>
@@ -2425,7 +2429,7 @@ Mi perfil en una frase: [tu rol + tu mayor fortaleza]</pre></div>
 </div></section>
 
 <section class="block" id="simulador"><div class="wrap">
-  <div class="sec-head reveal"><span class="kicker kicker--gold">Bonus interactivo</span><h2>Simulador de entrevista por voz</h2><p>Ya pasaste el filtro y tienes entrevista. Aqu&iacute; el entrevistador te <b>habla</b> y te <b>escucha</b>: respondes por micr&oacute;fono, como en una llamada real, y practicas hasta que deje de darte miedo.</p></div>
+  <div class="sec-head reveal"><span class="kicker kicker--gold">Bonus interactivo</span><h2>Simulador de entrevista por voz (en español)</h2><p>Ya pasaste el filtro y tienes entrevista. Aqu&iacute; el entrevistador te <b>habla</b> y te <b>escucha</b>: respondes por micr&oacute;fono, como en una llamada real, y practicas hasta que deje de darte miedo.</p></div>
 
   <style>
   #simulador .sim-card{max-width:860px;margin:0 auto;background:var(--paper);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);overflow:hidden}
@@ -2491,9 +2495,11 @@ Mi perfil en una frase: [tu rol + tu mayor fortaleza]</pre></div>
         <span class="ic">&#128187;</span>
         <span>Este simulador de voz funciona con <b>Google Chrome</b> (en ordenador o Android). Si el micr&oacute;fono no te responde, <b>abre esta p&aacute;gina con Chrome</b> y pulsa <b>Permitir</b> cuando te pida el micr&oacute;fono. En Safari o iPhone puede que no capture la voz; en ese caso, responde por escrito.</span>
       </div>
+      <div class="sim-note" style="display:block;margin:0 0 18px">&#127468;&#127463; &iquest;Tu entrevista es en ingl&eacute;s? El <b>simulador de entrevista en ingl&eacute;s</b> (con acento americano y brit&aacute;nico) est&aacute; en tu otra herramienta, <b>El Profesor de Ingl&eacute;s Remoto</b>. Aqu&iacute; practicas en espa&ntilde;ol.</div>
       <div class="sim-setup" id="simSetup">
         <div class="sim-field"><label>Idioma</label>
-          <select id="simLang"><option value="es">Espa&ntilde;ol</option><option value="en">English (ingl&eacute;s)</option></select></div>
+          <div style="padding:11px 12px;border:1px solid var(--line);border-radius:10px;background:#f2f6f2;font:600 14px 'Poppins';color:var(--ink)">Espa&ntilde;ol</div>
+          <input type="hidden" id="simLang" value="es"></div>
         <div class="sim-field"><label>Tipo de puesto</label>
           <select id="simRole">
             <option value="other">General / otro</option>
