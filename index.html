@@ -205,7 +205,7 @@ section.block{padding:74px 0;scroll-margin-top:84px}
   @page{size:A4;margin:14mm}
   body{background:#fff}
   .nav,.scrollcue,.btn-print,.copybtn,.codebar .copybtn,.perfil__bar,.hero canvas{display:none!important}
-  #valor,#meta,#perfil,#escaner,#simulador,#tablero{display:none!important}
+  #cvgen,#valor,#meta,#perfil,#escaner,#simulador,#tablero{display:none!important}
   /* El PDF de "prompts y plantillas" no debe llevar formularios ni controles vacíos */
   #portafolio .pmv-form,#portafolio .pmv-outbar,#portafolio .pmv-render:empty,
   #frescas input,#frescas select,#alertas input,#contrato input,#contrato textarea,
@@ -455,6 +455,7 @@ table.trk input::placeholder{color:#aab4a6}
       <a href="#portafolio">Portafolio</a>
       <a href="#prompts">Los prompts</a>
       <a href="#plantillas">Plantillas</a>
+      <a href="#cvgen">Crear CV</a>
       <a href="#escaner">Escáner ATS</a>
       <a href="#sinexp">Sin experiencia</a>
       <a href="#tipos">Tipos de trabajo</a>
@@ -1041,8 +1042,11 @@ oferta de trabajo remoto concreta y supere los filtros automáticos ATS.
 3. Orden del CV: (1) titular alineado al puesto, (2) resumen de 3-4
    líneas orientado a resultados, (3) experiencia con bullets de
    LOGROS cuantificados (no tareas), (4) skills, (5) formación.
-4. Cada bullet empieza con un verbo de acción y, si se puede, lleva
-   un número o resultado medible.
+4. Escribe cada bullet de logro con la fórmula X-Y-Z (la que recomienda
+   el ex-jefe de RR.HH. de Google): "logré [X], medido por [Y], haciendo
+   [Z]". O sea: empieza con un verbo de acción, incluye un número o
+   resultado medible y di cómo lo conseguiste. Ejemplo: "Reduje el tiempo
+   de respuesta al cliente un 80% creando plantillas de respuesta".
 5. Formato 100% compatible con ATS: sin tablas, sin columnas, sin
    iconos ni gráficos. Texto plano y encabezados simples.
 6. Si la oferta está en inglés, entrégame el CV en inglés.
@@ -1654,6 +1658,365 @@ Si te encaja, ¿podrías publicarla en mi LinkedIn o enviármela por correo?
     </div>
   </div>
 </section>
+
+<section class="block" id="cvgen"><div class="wrap">
+<style>
+#cvgen .cvg{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:22px;box-shadow:var(--shadow)}
+#cvgen .cvg__grid{display:grid;gap:24px}
+@media(min-width:920px){#cvgen .cvg__grid{grid-template-columns:1fr 1fr}}
+#cvgen .cvg__toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+#cvgen label{display:block;font:600 12.5px 'Poppins',sans-serif;color:var(--deep2);margin-bottom:12px}
+#cvgen input,#cvgen textarea{width:100%;margin-top:5px;border:1.5px solid var(--line);border-radius:11px;padding:10px 12px;font:500 14px 'Poppins',sans-serif;color:var(--ink);background:#fff}
+#cvgen textarea{min-height:72px;resize:vertical}
+#cvgen input:focus,#cvgen textarea:focus{outline:none;border-color:var(--green-l)}
+#cvgen .cvg__row{display:grid;gap:12px}
+@media(min-width:520px){#cvgen .cvg__row{grid-template-columns:1fr 1fr}}
+#cvgen .cvg__sub{font:700 13px 'Poppins',sans-serif;color:var(--brand);text-transform:uppercase;letter-spacing:.05em;margin:6px 0 12px;padding-top:12px;border-top:1px dashed var(--line)}
+#cvgen .cvg__exp{background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+#cvgen .cvg__del{background:#fbe9e9;color:#b13030;border:1px solid #eec4c4;border-radius:9px;padding:9px 12px;font:600 12px 'Poppins',sans-serif;cursor:pointer;margin-top:5px;width:100%}
+#cvgen .cvg__del:hover{background:#f6dada}
+#cvgen .cvg__xyzbtn{background:#eef6f0;color:var(--brand);border:1px solid #cfe6d6;border-radius:9px;padding:8px 12px;font:600 12px 'Poppins',sans-serif;cursor:pointer;margin-top:9px}
+#cvgen .cvg__xyzbtn:hover{background:#e3f0e7}
+#cvgen .cvg__xyz[hidden]{display:none}
+#cvgen .cvg__xyz{margin-top:10px;padding:13px;border:1px dashed var(--gold);border-radius:11px;background:#fffdf5}
+#cvgen .cvg__xyztip{font:500 11.5px 'Poppins',sans-serif;color:var(--mute);margin:0 0 10px;line-height:1.55}
+#cvgen .cvg__xyztip b{color:var(--deep2)}
+#cvgen .cvg__previewbar{font:700 12px 'Poppins',sans-serif;color:var(--mute);text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px}
+#cvgen .cvg__paper{background:#fff;border:1px solid var(--line);border-radius:12px;box-shadow:0 10px 30px -18px rgba(6,46,18,.4);padding:6px;max-height:560px;overflow:auto}
+#cvgen .cvg__exports{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+#cvgen .cvg__hint{font:500 12px 'Poppins',sans-serif;color:var(--mute);margin-top:12px;line-height:1.6}
+#cvgen .cvg__hint b{color:var(--deep2)}
+
+/* documento CV (una sola columna, apto ATS) */
+.cvdoc{font-family:Arial,'Helvetica Neue',Helvetica,sans-serif;color:#161616;background:#fff;padding:26px 30px;line-height:1.42;font-size:13px}
+.cvdoc__name{font-size:22px;font-weight:700;letter-spacing:.2px}
+.cvdoc__title{font-size:14px;color:#333;margin-top:3px}
+.cvdoc__contact{font-size:11.5px;color:#444;margin-top:7px}
+.cvdoc__sec{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#175A3A;border-bottom:1.5px solid #C9A227;padding-bottom:3px;margin:17px 0 9px}
+.cvdoc__p{margin:0 0 6px}
+.cvdoc__job{display:flex;justify-content:space-between;gap:10px;margin-top:9px;flex-wrap:wrap}
+.cvdoc__jh{font-weight:700}
+.cvdoc__jd{color:#555;font-size:11.5px;white-space:nowrap}
+.cvdoc__b{margin:2px 0 2px 2px}
+
+#cvPrintRoot{display:none}
+@media print{
+  body.cv-printing>*{display:none!important}
+  body.cv-printing>#cvPrintRoot{display:block!important}
+  #cvPrintRoot .cvdoc{padding:0;font-size:12px;box-shadow:none;border:0}
+}
+</style>
+
+  <div class="sec-head reveal"><span class="kicker kicker--gold">Antes del escáner</span><h2>Crea tu CV a prueba de escáneres</h2><p>Muchos CV en Word no se leen porque llevan tablas, columnas o cuadros de texto que el robot (el ATS) ignora. Aquí lo armas en una sola columna, con texto que sí se lee, y lo descargas en el formato que cada plataforma prefiere. Luego lo pasas por el escáner de abajo.</p></div>
+
+  <div class="cvg reveal">
+    <div class="cvg__grid">
+
+      <div class="cvg__form">
+        <div class="cvg__toolbar">
+          <button type="button" class="btn-ghost-sm" id="cvImport">&#8681; Importar de mi Perfil Base</button>
+          <span class="savemsg" id="cvMsg">Se guarda solo en este navegador.</span>
+        </div>
+
+        <label>Nombre completo<input id="cvNombre" placeholder="Ej: María Fernanda López"></label>
+        <label>Titular profesional<input id="cvTitular" placeholder="Ej: Asistente virtual bilingüe"></label>
+        <div class="cvg__row">
+          <label>Email<input id="cvEmail" placeholder="tucorreo@gmail.com"></label>
+          <label>Teléfono / WhatsApp<input id="cvTel" placeholder="+57 300 000 0000"></label>
+        </div>
+        <div class="cvg__row">
+          <label>Ciudad y país<input id="cvCiudad" placeholder="Bogotá, Colombia"></label>
+          <label>LinkedIn (enlace)<input id="cvLinkedin" placeholder="linkedin.com/in/tu-perfil"></label>
+        </div>
+        <label>Resumen profesional (2-3 líneas)<textarea id="cvResumen" placeholder="Qué haces, para quién y con qué resultado."></textarea></label>
+
+        <div class="cvg__sub">Experiencia</div>
+        <div id="cvExpList"></div>
+        <button type="button" class="btn-ghost-sm" id="cvAddExp">+ Añadir experiencia</button>
+
+        <div style="height:14px"></div>
+        <label>Formación (una por línea: Título &mdash; Institución &mdash; Año)<textarea id="cvEdu" placeholder="Técnico en Sistemas — SENA — 2021"></textarea></label>
+        <label>Habilidades y herramientas (sepáralas por comas)<textarea id="cvSkills" placeholder="Excel, Notion, atención al cliente, redacción"></textarea></label>
+        <label>Idiomas<input id="cvIdiomas" placeholder="Inglés B2, Español nativo"></label>
+      </div>
+
+      <div class="cvg__preview">
+        <div class="cvg__previewbar">Vista previa</div>
+        <div class="cvg__paper" id="cvPaper"></div>
+        <div class="cvg__exports">
+          <button type="button" class="btn-gold" id="cvDocx">&#8681; Descargar .docx</button>
+          <button type="button" class="btn-ghost" id="cvPdf">Guardar como PDF</button>
+          <button type="button" class="btn-ghost" id="cvTxt">Copiar como texto plano</button>
+        </div>
+        <p class="cvg__hint">El <b>.docx</b> es el formato que mejor leen casi todos los escáneres. El <b>PDF</b> mantiene el texto seleccionable: en el diálogo de impresión elige &laquo;Guardar como PDF&raquo;. El <b>texto plano</b> es para pegarlo directo en el campo de LinkedIn o Indeed.</p>
+      </div>
+
+    </div>
+  </div>
+</div></section>
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id);};
+  var CVKEY='dgeg_cv';
+  var cvExpList=$('cvExpList'), cvMsg=$('cvMsg');
+
+  function esc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+  function addExp(d){
+    d=d||{emp:'',pue:'',fec:'',log:[]};
+    var wrap=document.createElement('div');
+    wrap.className='cvg__exp';
+    wrap.innerHTML=
+      '<div class="cvg__row">'+
+        '<label>Empresa<input class="ex-emp"></label>'+
+        '<label>Puesto<input class="ex-pue"></label>'+
+      '</div>'+
+      '<div class="cvg__row">'+
+        '<label>Fechas (Ej: 2022 &ndash; 2024)<input class="ex-fec"></label>'+
+        '<label>Acci&oacute;n<button type="button" class="cvg__del">Quitar</button></label>'+
+      '</div>'+
+      '<label>Logros (uno por l&iacute;nea, con n&uacute;meros si puedes)<textarea class="ex-log" rows="3"></textarea></label>'+
+      '<button type="button" class="cvg__xyzbtn">&#10024; Ay&uacute;dame a escribir un logro (f&oacute;rmula X-Y-Z de Google)</button>'+
+      '<div class="cvg__xyz" hidden>'+
+        '<p class="cvg__xyztip">La f&oacute;rmula que recomienda el ex-jefe de RR.HH. de Google: <b>logr&eacute; [X], medido por [Y], haciendo [Z]</b>. Rellena las tres y te arma un logro con n&uacute;mero.</p>'+
+        '<label>X &middot; &iquest;Qu&eacute; lograste?<input class="xyz-x" placeholder="Ej: reduje el tiempo de respuesta al cliente"></label>'+
+        '<label>Y &middot; &iquest;C&oacute;mo se mide? (el n&uacute;mero)<input class="xyz-y" placeholder="Ej: de 24h a 4h, un 80% menos"></label>'+
+        '<label>Z &middot; &iquest;Qu&eacute; hiciste para lograrlo?<input class="xyz-z" placeholder="Ej: creando plantillas de respuesta"></label>'+
+        '<button type="button" class="cvg__xyzadd btn-ghost-sm">A&ntilde;adir a mis logros</button>'+
+      '</div>';
+    wrap.querySelector('.ex-emp').value=d.emp||'';
+    wrap.querySelector('.ex-pue').value=d.pue||'';
+    wrap.querySelector('.ex-fec').value=d.fec||'';
+    wrap.querySelector('.ex-log').value=(d.log||[]).join('\n');
+    wrap.querySelector('.cvg__del').addEventListener('click',function(){wrap.remove();save();render();});
+    wrap.querySelector('.cvg__xyzbtn').addEventListener('click',function(){var p=wrap.querySelector('.cvg__xyz');p.hidden=!p.hidden;});
+    wrap.querySelector('.cvg__xyzadd').addEventListener('click',function(){
+      var bullet=joinXYZ(wrap.querySelector('.xyz-x').value,wrap.querySelector('.xyz-y').value,wrap.querySelector('.xyz-z').value);
+      if(!bullet)return;
+      var ta=wrap.querySelector('.ex-log');
+      ta.value=(ta.value.trim()?ta.value.replace(/\s+$/,'')+'\n':'')+bullet;
+      wrap.querySelector('.xyz-x').value='';wrap.querySelector('.xyz-y').value='';wrap.querySelector('.xyz-z').value='';
+      wrap.querySelector('.cvg__xyz').hidden=true;
+      save();render();
+    });
+    cvExpList.appendChild(wrap);
+  }
+
+  function joinXYZ(x,y,z){
+    x=(x||'').trim();y=(y||'').trim();z=(z||'').trim();
+    if(!x&&!y&&!z)return '';
+    var s=x;
+    if(y)s+=(s?' ':'')+y;
+    if(z)s+=(s?', ':'')+z;
+    return s.charAt(0).toUpperCase()+s.slice(1);
+  }
+
+  function readState(){
+    var exp=[].slice.call(cvExpList.querySelectorAll('.cvg__exp')).map(function(b){
+      return {
+        emp:b.querySelector('.ex-emp').value.trim(),
+        pue:b.querySelector('.ex-pue').value.trim(),
+        fec:b.querySelector('.ex-fec').value.trim(),
+        log:b.querySelector('.ex-log').value.split('\n').map(function(s){return s.trim();}).filter(Boolean)
+      };
+    }).filter(function(e){return e.emp||e.pue||e.fec||e.log.length;});
+    return {
+      nombre:$('cvNombre').value.trim(), titular:$('cvTitular').value.trim(),
+      email:$('cvEmail').value.trim(), tel:$('cvTel').value.trim(),
+      ciudad:$('cvCiudad').value.trim(), linkedin:$('cvLinkedin').value.trim(),
+      resumen:$('cvResumen').value.trim(), exp:exp,
+      edu:$('cvEdu').value.split('\n').map(function(s){return s.trim();}).filter(Boolean),
+      skills:$('cvSkills').value.split(',').map(function(s){return s.trim();}).filter(Boolean),
+      idiomas:$('cvIdiomas').value.trim()
+    };
+  }
+
+  function save(){try{localStorage.setItem(CVKEY,JSON.stringify(readState()));}catch(e){}cvMsg.textContent='Guardado \u2713';}
+
+  function contact(s){return [s.ciudad,s.tel,s.email,s.linkedin].filter(Boolean);}
+
+  function sec(t){return '<div class="cvdoc__sec">'+esc(t)+'</div>';}
+
+  function renderPaper(s){
+    var h='<div class="cvdoc">';
+    h+='<div class="cvdoc__name">'+esc(s.nombre||'Tu nombre')+'</div>';
+    if(s.titular)h+='<div class="cvdoc__title">'+esc(s.titular)+'</div>';
+    var c=contact(s); if(c.length)h+='<div class="cvdoc__contact">'+esc(c.join('  \u2022  '))+'</div>';
+    if(s.resumen){h+=sec('Resumen profesional')+'<p class="cvdoc__p">'+esc(s.resumen)+'</p>';}
+    if(s.exp.length){h+=sec('Experiencia');
+      for(var i=0;i<s.exp.length;i++){var e=s.exp[i];
+        var head=[e.pue,e.emp].filter(Boolean).join(' \u2014 ');
+        h+='<div class="cvdoc__job"><span class="cvdoc__jh">'+esc(head)+'</span>'+(e.fec?'<span class="cvdoc__jd">'+esc(e.fec)+'</span>':'')+'</div>';
+        for(var j=0;j<e.log.length;j++)h+='<div class="cvdoc__b">\u2022&nbsp;'+esc(e.log[j])+'</div>';
+      }
+    }
+    if(s.edu.length){h+=sec('Formaci\u00f3n');for(var k=0;k<s.edu.length;k++)h+='<div class="cvdoc__b">\u2022&nbsp;'+esc(s.edu[k])+'</div>';}
+    if(s.skills.length){h+=sec('Habilidades')+'<p class="cvdoc__p">'+esc(s.skills.join('  \u2022  '))+'</p>';}
+    if(s.idiomas){h+=sec('Idiomas')+'<p class="cvdoc__p">'+esc(s.idiomas)+'</p>';}
+    h+='</div>';
+    return h;
+  }
+
+  function renderTxt(s){
+    var L=[];
+    if(s.nombre)L.push(s.nombre);
+    if(s.titular)L.push(s.titular);
+    var c=contact(s); if(c.length)L.push(c.join(' | '));
+    if(s.resumen){L.push('','RESUMEN PROFESIONAL',s.resumen);}
+    if(s.exp.length){L.push('','EXPERIENCIA');
+      s.exp.forEach(function(e){
+        var head=[e.pue,e.emp].filter(Boolean).join(' \u2014 ');
+        L.push('',[head,e.fec].filter(Boolean).join('  |  '));
+        e.log.forEach(function(l){L.push('- '+l);});
+      });
+    }
+    if(s.edu.length){L.push('','FORMACI\u00d3N');s.edu.forEach(function(x){L.push('- '+x);});}
+    if(s.skills.length){L.push('','HABILIDADES',s.skills.join(', '));}
+    if(s.idiomas){L.push('','IDIOMAS',s.idiomas);}
+    return L.join('\n');
+  }
+
+  /* ---------- .docx (ZIP store + CRC32, sin librerías) ---------- */
+  var CRC_T=(function(){var t=new Uint32Array(256);for(var n=0;n<256;n++){var c=n;for(var k=0;k<8;k++)c=(c&1)?(0xEDB88320^(c>>>1)):(c>>>1);t[n]=c>>>0;}return t;})();
+  function crc32(u8){var c=0xffffffff;for(var i=0;i<u8.length;i++)c=CRC_T[(c^u8[i])&0xff]^(c>>>8);return (c^0xffffffff)>>>0;}
+  function u16(n){return new Uint8Array([n&255,(n>>8)&255]);}
+  function u32(n){return new Uint8Array([n&255,(n>>8)&255,(n>>16)&255,(n>>24)&255]);}
+  function cat(list){var len=0,a;for(a=0;a<list.length;a++)len+=list[a].length;var out=new Uint8Array(len),o=0;for(a=0;a<list.length;a++){out.set(list[a],o);o+=list[a].length;}return out;}
+  function zip(files){
+    var enc=new TextEncoder(), parts=[], central=[], offset=0, i;
+    for(i=0;i<files.length;i++){
+      var nameB=enc.encode(files[i].name), data=files[i].data, crc=crc32(data);
+      var lh=cat([u32(0x04034b50),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(nameB.length),u16(0),nameB]);
+      var localOffset=offset;
+      parts.push(lh); offset+=lh.length;
+      parts.push(data); offset+=data.length;
+      central.push(cat([u32(0x02014b50),u16(20),u16(20),u16(0),u16(0),u16(0),u16(0),u32(crc),u32(data.length),u32(data.length),u16(nameB.length),u16(0),u16(0),u16(0),u16(0),u32(0),u32(localOffset),nameB]));
+    }
+    var centralBuf=cat(central), centralOffset=offset;
+    parts.push(centralBuf); offset+=centralBuf.length;
+    parts.push(cat([u32(0x06054b50),u16(0),u16(0),u16(files.length),u16(files.length),u32(centralBuf.length),u32(centralOffset),u16(0)]));
+    return cat(parts);
+  }
+  function xesc(t){return String(t==null?'':t).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+  function run(t,o){o=o||{};var r='';if(o.b)r+='<w:b/>';if(o.sz){r+='<w:sz w:val="'+o.sz+'"/><w:szCs w:val="'+o.sz+'"/>';}if(o.color)r+='<w:color w:val="'+o.color+'"/>';r=r?('<w:rPr>'+r+'</w:rPr>'):'';return '<w:r>'+r+'<w:t xml:space="preserve">'+xesc(t)+'</w:t></w:r>';}
+  function par(inner,o){o=o||{};var sp='';if(o.before||o.after)sp='<w:spacing'+(o.before?' w:before="'+o.before+'"':'')+(o.after?' w:after="'+o.after+'"':'')+'/>';var bd=o.rule?'<w:pBdr><w:bottom w:val="single" w:sz="6" w:space="2" w:color="C9A227"/></w:pBdr>':'';var pp=(sp||bd)?('<w:pPr>'+bd+sp+'</w:pPr>'):'';return '<w:p>'+pp+inner+'</w:p>';}
+  function docParas(s){
+    var P=[];
+    function head(t){P.push(par(run(t.toUpperCase(),{b:1,sz:22,color:'175A3A'}),{before:180,after:60,rule:1}));}
+    if(s.nombre)P.push(par(run(s.nombre,{b:1,sz:40}),{after:20}));
+    if(s.titular)P.push(par(run(s.titular,{sz:26}),{after:40}));
+    var c=contact(s); if(c.length)P.push(par(run(c.join('   |   '),{sz:18}),{after:80}));
+    if(s.resumen){head('Resumen profesional');P.push(par(run(s.resumen,{}),{after:60}));}
+    if(s.exp.length){head('Experiencia');
+      s.exp.forEach(function(e){
+        var hd=[e.pue,e.emp].filter(Boolean).join(' \u2014 ');
+        P.push(par(run(hd,{b:1})+(e.fec?run('    |    '+e.fec,{}):''),{before:60}));
+        e.log.forEach(function(l){P.push(par(run('\u2022  '+l,{}),{}));});
+      });
+    }
+    if(s.edu.length){head('Formaci\u00f3n');s.edu.forEach(function(x){P.push(par(run('\u2022  '+x,{}),{}));});}
+    if(s.skills.length){head('Habilidades');P.push(par(run(s.skills.join(', '),{}),{}));}
+    if(s.idiomas){head('Idiomas');P.push(par(run(s.idiomas,{}),{}));}
+    return P.join('');
+  }
+  function downloadDocx(){
+    var s=readState(), enc=new TextEncoder();
+    var CT='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/><Override PartName="/word/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.styles+xml"/></Types>';
+    var RELS='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>';
+    var DRELS='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>';
+    var STYLES='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:styles xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:docDefaults><w:rPrDefault><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/><w:sz w:val="21"/><w:szCs w:val="21"/></w:rPr></w:rPrDefault></w:docDefaults></w:styles>';
+    var DOC='<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:body>'+docParas(s)+'<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134"/></w:sectPr></w:body></w:document>';
+    var files=[
+      {name:'[Content_Types].xml',data:enc.encode(CT)},
+      {name:'_rels/.rels',data:enc.encode(RELS)},
+      {name:'word/document.xml',data:enc.encode(DOC)},
+      {name:'word/styles.xml',data:enc.encode(STYLES)},
+      {name:'word/_rels/document.xml.rels',data:enc.encode(DRELS)}
+    ];
+    var blob=new Blob([zip(files)],{type:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'});
+    var a=document.createElement('a');
+    a.href=URL.createObjectURL(blob);
+    a.download=((s.nombre||'CV').replace(/\s+/g,'_')||'CV')+'_CV.docx';
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(function(){URL.revokeObjectURL(a.href);},4000);
+    cvMsg.textContent='Descargado .docx \u2713';
+  }
+
+  /* ---------- PDF (impresión aislada, texto seleccionable) ---------- */
+  var printRoot=document.getElementById('cvPrintRoot');
+  if(!printRoot){printRoot=document.createElement('div');printRoot.id='cvPrintRoot';document.body.appendChild(printRoot);}
+  function printPDF(){
+    printRoot.innerHTML=renderPaper(readState());
+    document.body.classList.add('cv-printing');
+    var off=function(){document.body.classList.remove('cv-printing');window.removeEventListener('afterprint',off);};
+    window.addEventListener('afterprint',off);
+    window.print();
+  }
+
+  /* ---------- importar del Perfil Base (dgeg_perfil) ---------- */
+  function importPerfil(){
+    var raw=''; try{raw=localStorage.getItem('dgeg_perfil')||'';}catch(e){}
+    if(!raw.trim()){cvMsg.textContent='A\u00fan no hay Perfil Base guardado.';return;}
+    var lines=raw.split('\n');
+    function val(re){for(var i=0;i<lines.length;i++){var m=lines[i].match(re);if(m)return lines[i].slice(m[0].length).trim();}return '';}
+    function afterLastColon(re){for(var i=0;i<lines.length;i++){if(re.test(lines[i])){var ci=lines[i].lastIndexOf(':');return ci>-1?lines[i].slice(ci+1).trim():'';}}return '';}
+    function setIfEmpty(id,v){var el=$(id);if(el&&!el.value.trim()&&v)el.value=v;}
+    setIfEmpty('cvNombre',val(/^\s*Nombre:\s*/i));
+    setIfEmpty('cvCiudad',val(/^\s*Pa[\u00edi]s\s*\/\s*ciudad:\s*/i));
+    setIfEmpty('cvTitular',afterLastColon(/^\s*Titular profesional/i));
+    setIfEmpty('cvIdiomas',val(/^\s*Idiomas[^:]*:\s*/i));
+    setIfEmpty('cvSkills',val(/^\s*Skills[^:]*:\s*/i));
+    setIfEmpty('cvEdu',val(/^\s*Formaci[\u00f3o]n:\s*/i));
+    var exps=[];
+    for(var i=0;i<lines.length;i++){
+      var t=lines[i].trim();
+      if(/^-\s+/.test(t)&&t.indexOf('|')>-1){
+        var parts=t.replace(/^-\s+/,'').split('|').map(function(x){return x.trim();});
+        var e={emp:parts[0]||'',pue:parts[1]||'',fec:parts[2]||'',log:[]};
+        for(var j=i+1;j<lines.length;j++){
+          var rawL=lines[j], t2=rawL.trim();
+          if(t2==='')break;
+          if(/^-\s+/.test(t2)&&t2.indexOf('|')>-1)break;
+          if(!/^\s/.test(rawL)&&t2.indexOf(':')>-1&&!/^Logro/i.test(t2))break;
+          var lg=t2;
+          if(/^Logro/i.test(lg)){var ci=lg.lastIndexOf(':');lg=ci>-1?lg.slice(ci+1).trim():'';}
+          lg=lg.replace(/^[-\u2022]\s*/,'').trim();
+          if(lg)e.log.push(lg);
+        }
+        exps.push(e);
+      }
+    }
+    if(exps.length){cvExpList.innerHTML='';exps.forEach(function(e){addExp(e);});}
+    save();render();
+    cvMsg.textContent='Datos tra\u00eddos de tu Perfil Base \u2713';
+  }
+
+  function render(){$('cvPaper').innerHTML=renderPaper(readState());}
+
+  /* ---------- init ---------- */
+  var saved=null; try{saved=JSON.parse(localStorage.getItem(CVKEY)||'null');}catch(e){}
+  function fill(id,v){var el=$(id);if(el)el.value=v||'';}
+  if(saved){
+    fill('cvNombre',saved.nombre);fill('cvTitular',saved.titular);fill('cvEmail',saved.email);
+    fill('cvTel',saved.tel);fill('cvCiudad',saved.ciudad);fill('cvLinkedin',saved.linkedin);
+    fill('cvResumen',saved.resumen);
+    fill('cvEdu',(saved.edu||[]).join('\n'));
+    fill('cvSkills',(saved.skills||[]).join(', '));
+    fill('cvIdiomas',saved.idiomas);
+    if(saved.exp&&saved.exp.length)saved.exp.forEach(function(e){addExp(e);}); else addExp();
+  }else{addExp();}
+  render();
+
+  var form=document.querySelector('#cvgen .cvg__form');
+  form.addEventListener('input',function(){save();render();});
+  $('cvAddExp').addEventListener('click',function(){addExp();save();render();});
+  $('cvImport').addEventListener('click',importPerfil);
+  $('cvDocx').addEventListener('click',downloadDocx);
+  $('cvPdf').addEventListener('click',printPDF);
+  $('cvTxt').addEventListener('click',function(){navigator.clipboard.writeText(renderTxt(readState())).then(function(){cvMsg.textContent='CV copiado como texto \u2713';}).catch(function(){cvMsg.textContent='Selecci\u00f3nalo y copia';});});
+})();
+</script>
+
 
 <section class="block" id="escaner"><div class="wrap">
   <div class="sec-head reveal"><span class="kicker kicker--gold">Bonus interactivo</span><h2>Escáner de coincidencia ATS</h2><p>Antes de enviar, mide cuánto encaja tu CV con la oferta. Pega ambos y descubre tu % de coincidencia y qué palabras clave te faltan.</p></div>
